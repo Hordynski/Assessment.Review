@@ -1,11 +1,18 @@
-﻿
+﻿@model Assessment.Review.Models.Inventory
+
 @{
     ViewBag.Title = "Order";
 }
 
 <h2>Order</h2>
-
+@*ViewData["Id"]*@
 <h3>
-    Please enter how many you would like to order.
+    @using (Html.BeginForm(new { ID = ViewData["ID"] }))
+    {
+        @Html.LabelFor(model => model.Quantity)
+        @Html.EditorFor(model => model.Quantity)
+
+        <button type="submit">Order</button>
+    }
 </h3>
 

@@ -9,27 +9,30 @@ using System.Web;
 using System.Web.Mvc;
 using Assessment.Review.DAL;
 using Assessment.Review.Models;
+using Assessment.Review.Services;
 
 namespace Assessment.Review.Controllers
 {
     public class ProductsController : Controller
     {
-        private ProductDBContext db = new ProductDBContext();
+        private readonly IProductServices _service;
+
+        public ProductsController(IProductServices service)
+        {
+            _service = service;
+        }
 
         // GET: Products
         public async Task<ActionResult> Index()
         {
-            return View(await db.Products.ToListAsync());
+            return View(await _service.Get());
         }
 
         // GET: Products/Details/5
-        public async Task<ActionResult> Details(int? id)
+        public async Task<ActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Product product = await db.Products.FindAsync(id);
+            Product product = await _service.Get(id);
+
             if (product == null)
             {
                 return HttpNotFound();
@@ -37,17 +40,20 @@ namespace Assessment.Review.Controllers
             return View(product);
         }
 
-        public ActionResult Create(int? id)
+        public ActionResult Order(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
+            ViewData["ID"] = id;
+
             return View();
         }
 
-        public async Task<ActionResult> Create(Inventory inventory)
+        [HttpPost]
+        public async Task<ActionResult> Order(Inventory inventory)
         {
             await _service.UpdateInventory(inventory);
             return RedirectToAction("Details", new { ID = inventory.ID });
@@ -57,7 +63,7 @@ namespace Assessment.Review.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _service.Dispose();
             }
             base.Dispose(disposing);
         }

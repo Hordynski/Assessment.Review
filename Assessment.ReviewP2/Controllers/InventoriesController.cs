@@ -48,12 +48,13 @@ namespace Assessment.ReviewP2.Controllers
                 return BadRequest(ModelState);
             }
 
+            var request = db.Inventories.Find(id);
+            request.Quantity -= inventory.Quantity;
+
             if (id != inventory.ID)
             {
                 return BadRequest();
             }
-
-            db.Entry(inventory).State = EntityState.Modified;
 
             try
             {
